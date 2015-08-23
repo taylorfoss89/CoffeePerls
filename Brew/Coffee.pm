@@ -7,7 +7,9 @@ use strict;
 
 sub new
 {
-    my ($class, %args) = @_;
+    my $package = shift;
+    my $class = ref($package) || $package;
+    my %args = @_;
     #$class->_incr_count();
     bless{
             _barista            => $arg{barista},
@@ -27,6 +29,32 @@ sub new
             _water_quantity     => $are{water_quantity},
             _water_temperature  => $arg{water_temperature},
         }, $class;
+
+
+    sub create_accessor 
+    {
+
+         my $self = shift;
+
+         for my $attribute (@_)
+         {
+            
+             no strict "refs";
+             no warnings;
+
+             *$attribute = sub
+             {
+
+                my $self = shift;
+
+                $self->{$attribute} = shift if @_;
+                return $self->{$attribute};
+
+            };
+
+        }
+    }
+
 }
 
 
