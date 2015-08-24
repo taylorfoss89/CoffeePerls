@@ -34,7 +34,7 @@ use Term::ReadLine;
 #
 #
 
-my $schema = Brew::Schema->connect(dbi:mysql:dbname=brew_db:127.0.0.1:13306,taylor,password);
+my $schema = Brew::Schema->connect( 'dbi:mysql:dbname=brew_db:127.0.0.1:13306', 'taylor', 'password');
 
 my $barista;                # Setting my user, otherwise known as the barista who made coffee 
 my @actions = ("Login");    # Plan is to use this to store the movements made through the UI for intelligently returning to previous pages
@@ -161,10 +161,11 @@ sub create_brew
             sweetness => $sweetness,
 
         });
-    print $coffee_brew->in_storage();
+    
+    if ( $coffee_brew->in_storage() ) {
+        print "recording your first brew!!!!\n\n";
+    };
 
-
-    print "recording your first brew!!!!\n\n";
     $continuing--;
 
 };
