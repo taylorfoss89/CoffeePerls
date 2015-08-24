@@ -56,6 +56,7 @@ while ( $continuing )
     no strict "refs";
 
     print "\033[2J";    # Clears the terminal screen for aesthetics and ease of use
+    print "\033[0;0H";  # Go to (0,0)
 
     my $action = $translations{$actions[-1]}();
     push @actions, $action; #$translations{$actions[-1]};
@@ -112,6 +113,43 @@ sub main_menu
 
 sub create_brew
 {
+    # Need to add code here for creating a new brew, this is where the user will add information that will be processed for pushing to the SQL database
+
+    my $brew_rating_term = Term::ReadLine->new('brew rating');
+    my $brew_rating = $brew_rating_term->get_reply(
+                        prompt  =>  "How was your coffee?\t",
+                        allow   =>  [1,2,3,4,5,6,7,8,9,10],  
+                        );
+
+    my $sweetness_term = Term::ReadLine->new('sweetness');
+    my $sweetness = $sweetness_term->get_reply(
+                        prompt  =>  "How sweet was your coffee?\t",
+                        allow   =>  [1,2,3,4,5,6,7,8,9,10],  
+                        );
+
+    my $mouthfeel_term = Term::ReadLine->new('mouthfeel');
+    my $mouthfeel = $mouthfeel_term->get_reply(
+                        prompt  =>  "How was the mouthfeel of your coffee?\t",
+                        allow   =>  [1,2,3,4,5,6,7,8,9,10],  
+                        );
+
+    my $acidity_term = Term::ReadLine->new('acidity');
+    my $acidity = $acidity_term->get_reply(
+                        prompt  =>  "How acidic was your coffee?\t",
+                        allow   =>  [1,2,3,4,5,6,7,8,9,10],  
+                        );
+
+    my $body_term = Term::ReadLine->new('body');
+    my $body = $body_term->get_reply(
+                        prompt  =>  "How much body did your coffee have?\t",
+                        allow   =>  [1,2,3,4,5,6,7,8,9,10],  
+                        );
+
+    my $bitterness_term = Term::ReadLine->new('bitterness');
+    my $bitterness = $bitterness_term->get_reply(
+                        prompt  =>  "How bitter was your coffee?\t",
+                        allow   =>  [1,2,3,4,5,6,7,8,9,10],  
+                        );
     print "recording your first brew!!!!\n\n";
     $continuing--;
 
