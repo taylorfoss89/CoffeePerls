@@ -61,6 +61,7 @@ while ( $continuing )
 
     print "\033[2J";    # Clears the terminal screen for aesthetics and ease of use
     print "\033[0;0H";  # Go to (0,0)
+    print "\n\n\n";
 
     my $action = $translations{$actions[-1]}();
     push @actions, $action; #$translations{$actions[-1]};
@@ -71,16 +72,11 @@ while ( $continuing )
 
 
 
-
-
-
-
-
 # Welcome message and user login
 
 sub login_prompt
 {
-    print "\n\n\n\nWelcome, barista!\n\n\n\n";
+    print "Welcome, barista!\n\n\n\n";
     print "Before we begin, I must know who you are.\n\n";
 
     my $term = Term::ReadLine->new('login');
@@ -96,9 +92,7 @@ sub login_prompt
 
 sub main_menu
 {
-    print "\n\n\n
-           MAIN MENU\n
-           ===================\n\n\n";       #need to utilize sprintf here for proper formatting, will worry about later
+    print "\t\tMAIN MENU\n=====================\n\n\n";       #need to utilize sprintf here for proper formatting, will worry about later
     print "Welcome $barista, what can I help you with?\n\n";
 
     my $term = Term::ReadLine->new('main menu');
@@ -118,42 +112,88 @@ sub main_menu
 sub create_brew
 {
     # Need to add code here for creating a new brew, this is where the user will add information that will be processed for pushing to the SQL database
+    my %brew_characteristics =
+    {
+        rate => 
+            {
+                brew_rating => "How was your coffee?",
+                sweetness   => "How sweet was your coffee?",
+                mouthfeel   => "How was the mouthfeel of your coffee?",
+                acidity     => "How acidic was your coffee?",
+                body        => "How much body did your coffee have?",
+                bitterness  => "How bitter was your coffee?",
+                finish      => "How did your coffee finish?",
+                clean       => "How clean was your coffee?",
+                savory      => "How savory was your coffee?",
+            },
+        multiple_choice =>
+            {
+                "Which brew method did you use?"    =>
+                            [               #these answers need to be replaced by something that intelligently identifies all of my subclasses of coffee and spits them out
+                                'Aeropress',
+                                'siphon',
+                                'espresso',
+                                'V60',
+                                'Chemex',
+                                'Melitta',
+                                'Kalita Wave',
+                                'moka pot',
+                                'french press',
+                            ],
+            },
+    };
 
-    my $brew_rating_term = Term::ReadLine->new('brew rating');
-    my $brew_rating = $brew_rating_term->get_reply(
-                        prompt  =>  "How was your coffee?\t",
-                        allow   =>  [1,2,3,4,5,6,7,8,9,10],  
-                        );
+    # These characteristics are attributes of the brew subclasses and should relocated to such. Need to ask Erik about best way to organize class-based information like these
 
-    my $sweetness_term = Term::ReadLine->new('sweetness');
-    my $sweetness = $sweetness_term->get_reply(
-                        prompt  =>  "How sweet was your coffee?\t",
-                        allow   =>  [1,2,3,4,5,6,7,8,9,10],  
-                        );
 
-    my $mouthfeel_term = Term::ReadLine->new('mouthfeel');
-    my $mouthfeel = $mouthfeel_term->get_reply(
-                        prompt  =>  "How was the mouthfeel of your coffee?\t",
-                        allow   =>  [1,2,3,4,5,6,7,8,9,10],  
-                        );
 
-    my $acidity_term = Term::ReadLine->new('acidity');
-    my $acidity = $acidity_term->get_reply(
-                        prompt  =>  "How acidic was your coffee?\t",
-                        allow   =>  [1,2,3,4,5,6,7,8,9,10],  
-                        );
 
-    my $body_term = Term::ReadLine->new('body');
-    my $body = $body_term->get_reply(
-                        prompt  =>  "How much body did your coffee have?\t",
-                        allow   =>  [1,2,3,4,5,6,7,8,9,10],  
-                        );
 
-    my $bitterness_term = Term::ReadLine->new('bitterness');
-    my $bitterness = $bitterness_term->get_reply(
-                        prompt  =>  "How bitter was your coffee?\t",
+    # Figure out what type of question is being asked and build the ReadTerm prompt/answers accordingly
+    foreach my $question_type ( keys $brew_characteristics )
+    {
+        foreach my $question ( keys $brew_characteristics{$question_type} )
+        {
+            if ( $question_type eq 'rate' )                     # Ensure that we are checking 'rate' questions
+            {
+                my %census  =
+                    {
+                        prompt  =>  "$brew_characteristics{$characteristic}\t",
                         allow   =>  [1,2,3,4,5,6,7,8,9,10],  
-                        );
+                    };
+            }
+            elsif ( $question_type eq 'multiple_choice' )       # Ensure that we are checking 'multiple_choice' questions
+            {
+                    my %census  =
+                        {
+                            prompt  =>  "$brew_characteristics{$question_type}{$question}\t",
+                            allow   =>  $brew_characteristics{$question_type}{$question},
+                        };
+            }
+            elsif ( $question_type eq 'free_form' )             # Ensure that we are checking 'free_form' questions
+            {
+                my %census  =
+                    {
+                        prompt  =>  "$brew_characteristics{$question_type}{$question}\t",
+                        #allow   =>  $brew_characteristics{$question_type}{$question},
+                    };
+            };
+        };
+    }
+
+
+sub ask_question
+{
+    # Now it is its own method for reusability and cleanliness
+    my %read_line_stuffs = shift;
+
+    # Build the ReadLine prompt and allowable answers here
+    my $brew_characteristic_term = Term::ReadLine->new( "$brew_chacteristic{$name}" );
+    my $brew_chacteristic = $brew_characteristic_term->get_reply( %read_line_stuffs );
+};
+
+
+
 
     my $coffee_brew = $schema->resultset('Brew')->create(
         {
